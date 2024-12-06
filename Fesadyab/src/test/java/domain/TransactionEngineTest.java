@@ -125,4 +125,31 @@ public class TransactionEngineTest {
 
         assertEquals(0, fraudScore);
     }
+
+    //for ca5
+    @Test
+    public void testGetTransactionPatternAboveThreshold_DifferentDiffs() {
+        Transaction txn1 = new Transaction();
+        txn1.setTransactionId(1);
+        txn1.setAmount(500);
+
+        Transaction txn2 = new Transaction();
+        txn2.setTransactionId(2);
+        txn2.setAmount(800);
+
+        Transaction txn3 = new Transaction();
+        txn3.setTransactionId(3);
+        txn3.setAmount(1200);
+
+        engine.addTransactionAndDetectFraud(txn1);
+        engine.addTransactionAndDetectFraud(txn2);
+        engine.addTransactionAndDetectFraud(txn3);
+
+        int pattern = engine.getTransactionPatternAboveThreshold(600);
+        assertEquals(0, pattern);
+    }
+
+
+
+
 }
