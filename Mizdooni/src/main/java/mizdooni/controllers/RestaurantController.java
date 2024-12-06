@@ -39,13 +39,17 @@ class RestaurantController {
         }
     }
 
+    // Changed here to handle manager does not exist case
     @GetMapping("/restaurants/manager/{managerId}")
     public Response getManagerRestaurants(@PathVariable int managerId) {
         try {
             List<Restaurant> restaurants = restaurantService.getManagerRestaurants(managerId);
-            return Response.ok("manager restaurants listed", restaurants);
-        } catch (Exception ex) {
-            throw new ResponseException(HttpStatus.BAD_REQUEST, ex);
+            return Response.ok("Manager restaurants listed", restaurants);
+        } catch (ResponseException e) {
+            if (e.getMessage().equals("Manager not found")) {
+                throw new ResponseException(HttpStatus.NOT_FOUND, e.getMessage());
+            }
+            throw new ResponseException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 

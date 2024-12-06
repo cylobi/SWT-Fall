@@ -42,9 +42,14 @@ class TableController {
 
         int seatsNumber;
         try {
-            seatsNumber = Integer.parseInt(params.get("seatNumber"));
+            seatsNumber = Integer.parseInt(params.get("seatsNumber")); //fixed a misspelling here on seat
         } catch (Exception ex) {
             throw new ResponseException(HttpStatus.BAD_REQUEST, PARAMS_BAD_TYPE);
+        }
+
+        if(seatsNumber <= 0)
+        {
+            throw new ResponseException(HttpStatus.BAD_REQUEST, PARAMS_BAD_TYPE); //added to fix negative number problems
         }
 
         try {
@@ -54,4 +59,5 @@ class TableController {
             throw new ResponseException(HttpStatus.BAD_REQUEST, ex);
         }
     }
+
 }
