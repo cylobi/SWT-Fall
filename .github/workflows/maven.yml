@@ -29,16 +29,16 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    - name: Set working directory
-      run: cd Fesadyab  
-        
     - name: Build with Maven
+      working-directory: Fesadyab
       run: mvn -B clean package
 
     - name: Run tests with coverage
+      working-directory: Fesadyab
       run: mvn -B test jacoco:report
 
     - name: Mutation testing with PIT
+      working-directory: Fesadyab
       run: mvn -B org.pitest:pitest-maven:mutationCoverage
 
     - name: Archive test results
