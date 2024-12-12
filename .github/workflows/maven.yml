@@ -35,7 +35,7 @@ jobs:
 
     - name: Run tests with coverage
       working-directory: Fesadyab
-      run: mvn -B test jacoco:report
+      run: mvn -B -X test jacoco:report
 
     - name: Mutation testing with PIT
       working-directory: Fesadyab
