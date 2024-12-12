@@ -36,6 +36,23 @@ public class TransactionEngineTest {
     }
 
     @Test
+    public void testGetAverageTransactionAmountByAccount_AllZeroAmounts() {
+        Transaction txn1 = new Transaction();
+        txn1.setAccountId(1);
+        txn1.setAmount(0);
+
+        Transaction txn2 = new Transaction();
+        txn2.setAccountId(1);
+        txn2.setAmount(0);
+
+        engine.addTransactionAndDetectFraud(txn1);
+        engine.addTransactionAndDetectFraud(txn2);
+
+        int avg = engine.getAverageTransactionAmountByAccount(1);
+        assertEquals(0, avg);
+    }
+
+    @Test
     public void testGetTransactionPatternAboveThreshold_NoTransactions() {
         int result = engine.getTransactionPatternAboveThreshold(1000);
         assertEquals(0, result);
@@ -76,6 +93,24 @@ public class TransactionEngineTest {
     }
 
     @Test
+    public void testGetTransactionPatternAboveThreshold_ExactThreshold() {
+        Transaction txn1 = new Transaction();
+        txn1.setTransactionId(1);
+        txn1.setAmount(1000);
+
+        Transaction txn2 = new Transaction();
+        txn2.setTransactionId(2);
+        txn2.setAmount(1000);
+
+        engine.addTransactionAndDetectFraud(txn1);
+        engine.addTransactionAndDetectFraud(txn2);
+
+        int pattern = engine.getTransactionPatternAboveThreshold(1000);
+        assertEquals(0, pattern); // No pattern since all amounts are exactly the threshold
+    }
+
+
+    @Test
     public void testDetectFraudulentTransaction_NoFraud() {
         Transaction txn = new Transaction();
         txn.setAccountId(1);
@@ -112,6 +147,17 @@ public class TransactionEngineTest {
         assertTrue(fraudScore >= 0);
     }
 
+    @Test
+    public void testDetectFraudulentTransaction_NonDebitTransaction() {
+        Transaction txn = new Transaction();
+        txn.setAccountId(1);
+        txn.setAmount(2000);
+        txn.setDebit(false); // Not a debit transaction
+
+        int fraudScore = engine.detectFraudulentTransaction(txn);
+        assertEquals(0, fraudScore);
+    }
+
 
     @Test
     public void testAddTransactionAndDetectFraud_DuplicateTransaction() {
@@ -124,6 +170,26 @@ public class TransactionEngineTest {
         int fraudScore = engine.addTransactionAndDetectFraud(txn);
 
         assertEquals(0, fraudScore);
+    }
+
+    @Test
+    public void testAddTransactionAndDetectFraud_FraudulentAboveThreshold() {
+        Transaction txn1 = new Transaction();
+        txn1.setTransactionId(1);
+        txn1.setAccountId(1);
+        txn1.setAmount(500);
+        txn1.setDebit(true);
+
+        Transaction txn2 = new Transaction();
+        txn2.setTransactionId(2);
+        txn2.setAccountId(1);
+        txn2.setAmount(1500);
+        txn2.setDebit(true);
+
+        engine.addTransactionAndDetectFraud(txn1);
+        int fraudScore = engine.addTransactionAndDetectFraud(txn2);
+
+        assertTrue(fraudScore > 0); // Fraud detected
     }
 
     //for ca5
@@ -149,7 +215,16 @@ public class TransactionEngineTest {
         assertEquals(0, pattern);
     }
 
+    @Test
+    public void testGetTransactionPatternAboveThreshold_SingleTransaction() {
+        Transaction txn1 = new Transaction();
+        txn1.setTransactionId(1);
+        txn1.setAmount(500);
 
+        engine.addTransactionAndDetectFraud(txn1);
 
+        int pattern = engine.getTransactionPatternAboveThreshold(600);
+        assertEquals(0, pattern, "Pattern should be 0 with a single transaction");
+    }
 
 }
